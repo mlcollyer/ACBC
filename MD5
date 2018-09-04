@@ -1,0 +1,11 @@
+1d7389c5367dedccf1e03d48421572d3 *ACHC.Rproj
+6b2646248b4a4fc2b8f66e5226fbde2e *DESCRIPTION
+52e9e08399db10fbbe157d4deb98b0c6 *man/ACHC-package.Rd
+2f3febc296b271da80c4041bbb4c3b29 *man/achc.Rd
+0a043886b024c7cba299ab31536764cf *man/plot.achc.Rd
+549a8bb8a98e31e899819959c29e4d5d *man/print.achc.Rd
+c917e9a7066c0a61d3d503d655343a32 *man/summary.achc.Rd
+2d2ff0c1aee631c757ed2398e54f5f59 *NAMESPACE
+b99b7dd7783d44b98dc63d901d511538 *R/achc.R
+4393b795f2581ca1ffd5f16e549bee7f *R/ACHC.support.code.R
+4ac36aff3d11ef009da7816df8a58cd4 *R/ACHC.utils.R

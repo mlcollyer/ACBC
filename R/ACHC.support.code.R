@@ -29,6 +29,22 @@
 NULL
 
 
+uniform.cube <- function(Y, pts){
+  p <- NCOL(Y)
+  tar <- ceiling(pts^(1/p))
+  scope <- sapply(1:NCOL(Y), function(j) {
+    y <- Y[,j]
+    max(y) - min(y)
+  })
+  coords <- lapply(1:p, function(j){
+    y <- Y[, j]
+    seq(min(y), max(y), (max(y) - min(y))/(tar -1))
+  })
+  cube <- expand.grid(coords)
+  as.matrix(cube)
+}
+
+
 uniform.grid <- function(Y, pts) {
   p <- ncol(Y)
   pt.scale <- seq(1,(p+2),0.05)
