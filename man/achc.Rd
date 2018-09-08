@@ -4,8 +4,8 @@
 \alias{achc}
 \title{Analysis of Convex Hull Coverage}
 \usage{
-achc(dat, group, grid.points = 500, iter = 99, seed = NULL,
-  print.progress = TRUE)
+achc(dat, group, grid.points = 500, grid.space = 0.05, iter = 99,
+  seed = NULL, print.progress = TRUE)
 }
 \arguments{
 \item{dat}{Either a data frame or matrix of data to be analyzed.  Because of computational
@@ -13,11 +13,12 @@ limitations, the number of variables is currently limited to 5.}
 
 \item{group}{A factor or vector coerible to factor for defining groups.}
 
-\item{grid.points}{The targeted number of uniform points to use to defined the expanse of the data space.  Emphasis 
-is placed on maintaining uniformity, so the optimal solution will likely not match exactly the desired number of points.
-Optimization involves fitting a spectrum of point desnities and choosing the solution that most closely matches the 
-number of grid points chosen.  Disparity between targeted and obtained numbers are likely due to edge effects
-(as small changes in density can add or remove many landmarks at the edges of data space occupation).}
+\item{grid.points}{The desired number of points, sampled from a uniform distribution of points
+in the data space, within a convex hull for all observed points.  This number might be
+less than the maximum possible number of points (which could be huge).}
+
+\item{grid.space}{The approximate spacing of uniform points along each axis.  For example, 0.05 means points will
+be placed at increments that are 5 percent of the expanse of data, per axis.}
 
 \item{iter}{The number of iterations (permutations) to run for the test.  Because the observed case counts as one
 iteration, this should be the number desired, minus one.}
@@ -43,12 +44,14 @@ A description is needed here
 }
 \examples{
 
+# 3 dimensions of data
 library(RRPP)
 data("Pupfish")
 group <- interaction(Pupfish$Sex, Pupfish$Pop)
 P <- prcomp(Pupfish$coords)$x[,1:3] # first 3 PCs
 
-pupCHC <- achc(P, group, iter = 99, grid.points = 1000)
+grid.preview(P, pts = 500, pt.scale = 0.05)
+pupCHC <- achc(P, group, iter = 99, grid.points = 500, grid.space = 0.05)
 pupCHC
 summary(pupCHC, confidence = 0.95)
 plot(pupCHC, lwd = 2)
@@ -57,6 +60,17 @@ plot(pupCHC, lwd = 2)
 library(rgl)
 plot3d(pupCHC$grid)
 aspect3d("iso")
+
+# Example of 8-dimensional data analysis
+data(PupfishHeads)
+group <- factor(paste(PupfishHeads$locality, PupfishHeads$year, sep = "."))
+P <- prcomp(PupfishHeads$coords)$x[, 1:8] # first 8 PCs
+
+grid.preview(P, pts = 500, pt.scale = 0.05)
+pupCHC <- achc(P, group, iter = 99, grid.points = 500, grid.space = 0.05)
+pupCHC
+summary(pupCHC, confidence = 0.95)
+plot(pupCHC, lwd = 2)
 
 }
 \author{

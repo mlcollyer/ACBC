@@ -29,73 +29,140 @@
 NULL
 
 
-uniform.cube <- function(Y, pts){
+uniform.cube <- function(Y, pt.space){
   p <- NCOL(Y)
-  tar <- ceiling(pts^(1/p))
   scope <- sapply(1:NCOL(Y), function(j) {
     y <- Y[,j]
     max(y) - min(y)
   })
   coords <- lapply(1:p, function(j){
     y <- Y[, j]
-    seq(min(y), max(y), (max(y) - min(y))/(tar -1))
+    seq(min(y), max(y), (max(y) - min(y))* pt.space)
   })
   cube <- expand.grid(coords)
   as.matrix(cube)
 }
 
 
-uniform.grid <- function(Y, pts) {
+uniform.grid <- function(Y, pt.space) {
   p <- ncol(Y)
-  pt.scale <- seq(1,(p+2),0.05)
-  hull.obs <- convhulln(Y, options="Fa")
-  uni.cubes <- lapply(1:length(pt.scale), function(j){
-    uniform.cube(P, pts = 1000*pt.scale[j])
-  })
-  
-  uclen <- sapply(uni.cubes, nrow)
-  
-  uni.cubes.red <- list()
-  uni.cubes.red[[1]] <- uni.cubes[[1]]
-  for(i in 2:length(uclen)) {
-    if(uclen[i] != uclen[i-1]) uni.cubes.red <- c(uni.cubes.red, list(uni.cubes[[i]]))
+  Y.hull <- hull.pts.by.planes(Y)
+  dim.index <- combn(p, 2)
+  coords <- as.list(array(NA, p))
+  for(i in 1: ncol(dim.index)) {
+    a.match <- dim.index[1, i]
+    b.match <- dim.index[2, i]
+    yh <- Y.hull[[i]]
+    x <- seq(min(yh[,1]), max(yh[,1]), (max(yh[,1]) - min(yh[,1]))*pt.scale)
+    y <- seq(min(yh[,2]), max(yh[,2]), (max(yh[,2]) - min(yh[,2]))*pt.scale)
+    z <- expand.grid(x, y)
+    ch <- sort(chull(yh))
+    check <- sapply(1:nrow(z), function(j){
+      z.i <- z[j,]
+      names(z.i) <- colnames(yh)
+      chp <- sort(chull(rbind(yh, z.i)))
+      identical(ch, chp)
+    })
+    res <- z[check,]
+    coords[[a.match]] <- c(coords[[a.match]], z[,1])
+    coords[[b.match]] <- c(coords[[b.match]], z[,2])
+  }
+  coords <- lapply(coords, unique)
+  coords <- lapply(coords, na.omit)
+  coords
+}
+
+uniform.grid.sample <- function(Y, pts, pt.scale){
+  U <- uniform.grid(Y, pt.scale)
+  p <- ncol(Y)
+  tpts <- pts
+  pts <- 0
+  Y.hull<- hull.pts.by.planes(Y)
+  coords <- list()
+  while(pts < tpts) {
+    u <- sapply(1:p, function(j) sample(U[[j]], size = 1))
+    ar <- in.hull(Y.hull, u, p)
+    if(ar) {
+      coords <- c(coords, list(u))
+      pts <- pts + 1
+      }
   }
   
-  Result <- lapply(1:length(uni.cubes.red), function(j){
-    uc <- uni.cubes.red[[j]]
-    result <- list()
-    for(i in 1:nrow(uc)) {
-      ar <- convhulln(rbind(uc[i,], Y), options="Fa")$vol
-      if(ar == hull.obs$vol) result$keep = c(result$keep, i) 
-    }
-    result
+  res <- t(simplify2array(coords))
+  colnames(res) <- colnames(Y)
+  res
+}
+
+
+hull.by.planes <- function(Y){
+  Y <- as.matrix(Y)
+  p <- ncol(Y)
+  n <- nrow(Y)
+  dim.list <- combn(p, 2)
+  lapply(1:ncol(dim.list), function(j){
+    dims <- dim.list[, j]
+    sort(chull(Y[, dims]))
   })
-  
-  res.check <- sapply(Result, function(x) length(x$keep))
-  best <- which.min(abs(pts - res.check))
-  
-  uc.best <- uni.cubes.red[[best]]
-  uc.best[Result[[best]]$keep,]
+}
+
+hull.pts.by.planes <- function(Y){
+  Y <- as.matrix(Y)
+  p <- ncol(Y)
+  n <- nrow(Y)
+  dim.list <- combn(p, 2)
+  hbp <-   lapply(1:ncol(dim.list), function(j){
+    dims <- dim.list[, j]
+    sort(chull(Y[, dims]))
+  })
+  lapply(1:length(hbp), function(j){
+    dims <- dim.list[, j]
+    y <- Y[, dims]
+    y[hbp[[j]],]
+  })
+}
+
+in.hull <- function(Y.hull, pt, p) { # assumes hull and Y.hull correspond
+  if(length(pt) != p) stop("unequal dimensions between point and matrix")
+  dim.list <- combn(p, 2)
+  pt.i <- lapply(1:ncol(dim.list), function(j) pt[dim.list[,j]])
+  for(i in 1:ncol(dim.list)){
+    dims <- dim.list[, i]
+    ch <- sort(chull(Y.hull[[i]]))
+    chp <- sort(chull(rbind(Y.hull[[i]], pt.i[[i]])))
+    res <- identical(ch, chp)
+    if(!res) break
+  }
+  res
 }
 
 groups.at.points <- function(Y = Y, group = group, grid = grid) {
-  require(geometry)
+  pca <- prcomp(Y)
+  d <- pca$sdev^2
+  d <- d[which(zapsmall(d) > 0)]
+  p <- length(d)
+  P <- pca$x[,1:p]
+  n <- nrow(P)
   glev <- levels(group)
   ng <- nlevels(group)
+  gp.hull.pts.by.plane <- lapply(1:ng, function(j){
+    gp.j <- which(group == glev[[j]])
+    y <- P[gp.j,]
+    hull.pts.by.planes(y)
+  })
   g.a.p <- sapply(1:nrow(grid), function(j){
     g.point <- grid[j,]
-    hd <- sapply(1:ng, function(jj){
-      y <- Y[group == glev[jj],]
-      yy <- rbind(g.point, y)
-      v1 <- convhulln(y, options = "FA")$vol
-      v2 <- convhulln(yy, options = "FA")$vol
-      res <- ifelse(v1==v2, 1, 0)
-      res
+    hd <- sapply(1:ng, function(j){
+      y.hull <- gp.hull.pts.by.plane[[j]]
+      in.hull(y.hull, g.point, p)
     })
-    
-    hd
+    as.numeric(hd)
   })
   
   rownames(g.a.p) <- glev
   t(g.a.p)
+}
+
+grid.preview <- function(Y, pts = 500, pt.scale = 0.05){
+  Z <- uniform.grid.sample(Y, pts, pt.scale)
+  pairs(Z, pch = 19, cex = 0.3, asp = 1)
 }
