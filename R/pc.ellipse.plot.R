@@ -1,13 +1,18 @@
-#' Principal Component Plot of Convex Hulls
+#' Principal Component Plot with Ellipsoids
 #'
-#' Function generates a principal component plot to best view convex hulls in low dimensions.
+#' Function generates a principal component plot to best view ellipsoids in low dimensions.
 #' 
 #' Principal components are obtained from eigen analysis of an among-group
 #' covariance or correlation matrix.  (Correlation matrix is used if std = TRUE.)
-#' Typical plot parameters should be available but parameters for hulls are controlled
+#' Typical plot parameters should be available but parameters for ellipsoids are controlled
 #' with specific function arguments.  One can add points, lines, arrows, or a legend 
 #' to the plot canvas, among other plot tricks, if desired.  (See \code{\link{points}},
 #' \code{\link{lines}}, \code{\link{arrows}}, and \code{\link{legend}}).
+#' 
+#' Note that the PC plot is 2-dimensional, so the ellipsoids are ellipses.  However, the
+#' ellipses are 2-dimensional projections of ellipsoids in the full data space.  If original
+#' data are 2-dimensional, the plot simply rotates the data and ellispes to best align
+#' with variation among grup centroids (means).
 #' 
 #' @param dat A matrix or data frame of data
 #' @param std A logical value that if TRUE finds standard deviates of the data 
@@ -15,6 +20,11 @@
 #' @param PC A vector of length 2 to indicate which PCs to view.  The default is c(1, 2).
 #' This can be changed to view alternative dimensions.  Illogical requests will defualt to
 #' c(1, 2) with a warning
+#' @param confidence The confidence level for ellipsoids, based on the covariance matrix of 
+#' data by groups.  Multivariate normality is assumed in estimation.
+#' @param ellipse.density A numeric value to indicate how many discrete points (in a circle)
+#' are used to approximate the continuous ellipse function.  More points mean a more precise curve, 
+#' but increase computation time.  The default, 120 points, is the same as 3 degrees (pi/60 radians) increments.
 #' @param group A factor of vector coercible to factor.  If null, the a single convex
 #' hull with be returned.
 #' @param group.cols A optional vector with length equal to the number of group levels
@@ -33,8 +43,10 @@
 #' library(RRPP)
 #' data("Pupfish")
 #' group <- interaction(Pupfish$Sex, Pupfish$Pop)
-#' pc.hull.plot(Pupfish$coords, group = group)
-pc.hull.plot <- function(dat, std = FALSE, PC = c(1,2), group = NULL, group.cols = NULL, 
+#' pc.ellipse.plot(Pupfish$coords, group = group)
+pc.ellipse.plot <- function(dat, std = FALSE, PC = c(1,2), confidence = 0.95,
+                            ellipse.density = 120,
+                            group = NULL, group.cols = NULL, 
                          group.lwd = NULL, group.lty = NULL, ...){
   if(NCOL(dat) < 2) stop("Cannot generate hulls in fewer than 2 dimensions")
   n <- NROW(dat)
@@ -72,16 +84,15 @@ pc.hull.plot <- function(dat, std = FALSE, PC = c(1,2), group = NULL, group.cols
        xlab = paste("PC1", round(d[1]/sum(d)*100, 1), "%"),
        ylab = paste("PC1", round(d[2]/sum(d)*100, 1), "%"),
        ...)
-  hull.pts <- lapply(1:ng, function(j){
+  
+  ellipse.pts <- lapply(1:ng, function(j){
     g <- which(group == glev[j])
-    Z <- P[g,]
-    hp <- chull(Z)
-    hp <- c(hp, hp[1])
-    Z[hp, ]
+    Yp <- P[g,] 
+    ellipsoid.pts.by.planes(Yp, confidence, ellipse.density)
   })
   
   for(i in 1:ng){
-    y <- hull.pts[[i]]
+    y <- ellipse.pts[[i]][[1]]
     points(y[,1], y[,2], type = "l", lty = group.lty[i],
            lwd = group.lwd[i], col = group.cols[i])
   }
