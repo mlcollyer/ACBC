@@ -1,6 +1,6 @@
-#' Analysis of Convex Hull Coverage
+#' Analysis of Ellipsoid Coverage
 #'
-#' Function obtains relative frequencies of convex hull coverage in the represented data space,
+#' Function obtains relative frequencies of ellipsoid coverage in the represented data space,
 #' and uses a permutation procedure to generate confidence limits for random assignmnet of observations to groups.
 #'
 #' A description is needed here
@@ -15,6 +15,11 @@
 #' less than the maximum possible number of points (which could be huge).  
 #' @param grid.space The approximate spacing of uniform points along each axis.  For example, 0.05 means points will
 #' be placed at increments that are 5 percent of the expanse of data, per axis.
+#' @param confidence The confidence level for ellipsoids, based on the covariance matrix of 
+#' data by groups.  Multivariate normality is assumed in estimation.
+#' @param ellipse.density A numeric value to indicate how many discrete points (in a circle)
+#' are used to approximate the continuous ellipse function.  More points mean a more precise curve, 
+#' but increase computation time.  The default, 120 points, is the same as 3 degrees (pi/60 radians) increments.
 #' @param iter The number of iterations (permutations) to run for the test.  Because the observed case counts as one
 #' iteration, this should be the number desired, minus one.
 #' @param seed Change the random seed, if desired.  If NULL, the seed will equal the number of permutations.
@@ -32,6 +37,7 @@
 #' \item{perms}{The number of permutations.}
 #' \item{perm.schedule}{The sampling frames in each permutation.}
 #' \item{std}{Whether data were standardized.}
+
 #' @examples 
 #' 
 #' # 3 dimensions of data
@@ -41,30 +47,15 @@
 #' group <- interaction(Pupfish$Sex, Pupfish$Pop)
 #' P <- prcomp(Pupfish$coords)$x[,1:3] # first 3 PCs
 #' 
-#' grid.preview(P, pts = 100, pt.scale = 0.1)
-#' pupCHC <- achc(P, std = FALSE, group, iter = 99, grid.points = 100, grid.space = 0.1)
+#' pupCHC <- aec(P, std = FALSE, group = group, iter = 99, confidence = 0.95,
+#'  ellipse.density = 60, grid.points = 100, grid.space = 0.1)
 #' pupCHC
 #' summary(pupCHC, confidence = 0.95)
 #' plot(pupCHC, lwd = 2)
 #' plot(pupCHC, lwd = 2, confidence = 0.99)
-#'
-#' # The grid used
-#' library(rgl)
-#' plot3d(pupCHC$grid)
-#' aspect3d("iso")
-#' 
-#' # Example of 8-dimensional data analysis
-#' data(PupfishHeads)
-#' group <- factor(paste(PupfishHeads$locality, PupfishHeads$year, sep = "."))
-#' P <- prcomp(PupfishHeads$coords)$x[, 1:8] # first 8 PCs
-#' 
-#' grid.preview(P, pts = 100, pt.scale = 0.1)
-#' pupCHC <- achc(P, std = FALSE, group, iter = 99, grid.points = 100, grid.space = 0.05)
-#' pupCHC
-#' summary(pupCHC, confidence = 0.95)
-#' plot(pupCHC, lwd = 2)
-#' 
-achc <- function(dat, std = FALSE, group, grid.points = 500, grid.space = 0.05,
+
+aec <- function(dat, std = FALSE, group, grid.points = 500, grid.space = 0.05,
+                 confidence = 0.95, ellipse.density = 120,
                  iter = 99, seed = NULL, print.progress = TRUE){
 
   if(!inherits(dat, c("data.frame", "matrix")))
@@ -82,7 +73,7 @@ achc <- function(dat, std = FALSE, group, grid.points = 500, grid.space = 0.05,
     cat("\nSampling grid points This might take a moment.\n")
   grid <- uniform.grid.sample(Y, pts = grid.points, 
                               pt.scale = grid.space)
-
+  
   # Random outcomes
   perms <- iter + 1
   if(print.progress) {
@@ -91,14 +82,13 @@ achc <- function(dat, std = FALSE, group, grid.points = 500, grid.space = 0.05,
   }
   
   ind <- perm.schedule(nrow(Y), iter = iter, seed = seed)
-  achc.args <- list(Y = Y, group = group, grid = grid,
-                    confidence = NULL, 
-                    ellipse.density = NULL)
+  aec.args <- list(Y = Y, group = group, grid = grid, confidence = confidence,
+                    ellipse.density = ellipse.density)
   analysis <- lapply(1:perms, function(j){
     step <- j
     if(print.progress) setTxtProgressBar(pb,step)
-    achc.args$Y <- Y[ind[[j]], ]
-    do.call(groups.at.points, achc.args)
+    aec.args$Y <- Y[ind[[j]], ]
+    do.call(groups.at.points, aec.args)
   })
   
   step <- perms + 1
@@ -111,6 +101,6 @@ achc <- function(dat, std = FALSE, group, grid.points = 500, grid.space = 0.05,
   
   out <- list(grid = grid, analysis = analysis, group = group, perms = perms,
               perm.schedule = ind, std = std)
-  class(out) <- "achc"
+  class(out) <- "aec"
   out
 }

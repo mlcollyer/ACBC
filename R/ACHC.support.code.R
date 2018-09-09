@@ -22,7 +22,6 @@
 #' @import stats
 #' @import graphics
 #' @import utils
-#' @import geometry
 #' @import RRPP
 #' @import rgl
 
@@ -44,7 +43,7 @@ uniform.cube <- function(Y, pt.space){
 }
 
 
-uniform.grid <- function(Y, pt.space) {
+uniform.grid <- function(Y, pt.scale) {
   p <- ncol(Y)
   Y.hull <- hull.pts.by.planes(Y)
   dim.index <- combn(p, 2)
@@ -121,6 +120,27 @@ hull.pts.by.planes <- function(Y){
   })
 }
 
+ellipsoid.pts.by.planes <- function(Y, confidence, ellipse.density){
+  Y <- as.matrix(Y)
+  p <- ncol(Y)
+  n <- nrow(Y)
+  z <- qnorm((1 - confidence)/2, lower.tail = FALSE)
+  angles <- seq(0, 2*pi, 2*pi/ellipse.density)
+  ell.points <- cbind(cos(angles), sin(angles)) * z
+  dim.list <- combn(p, 2)
+  hbp <-   lapply(1:ncol(dim.list), function(j){
+    dims <- dim.list[, j]
+    y <- Y[, dims]
+    v <- var(y)
+    R <- chol(v)
+    ep <- ell.points %*% R + matrix(1, nrow(ell.points)) %*% colMeans(y)
+    ep[sort(chull(ep)), ]
+  })
+  hbp
+}
+
+
+
 in.hull <- function(Y.hull, pt, p) { # assumes hull and Y.hull correspond
   if(length(pt) != p) stop("unequal dimensions between point and matrix")
   dim.list <- combn(p, 2)
@@ -135,7 +155,10 @@ in.hull <- function(Y.hull, pt, p) { # assumes hull and Y.hull correspond
   res
 }
 
-groups.at.points <- function(Y = Y, group = group, grid = grid) {
+
+groups.at.points <- function(Y = Y, group = group, grid = grid, 
+                             confidence = NULL, 
+                             ellipse.density = NULL) {
   pca <- prcomp(Y)
   d <- pca$sdev^2
   d <- d[which(zapsmall(d) > 0)]
@@ -144,11 +167,19 @@ groups.at.points <- function(Y = Y, group = group, grid = grid) {
   n <- nrow(P)
   glev <- levels(group)
   ng <- nlevels(group)
-  gp.hull.pts.by.plane <- lapply(1:ng, function(j){
-    gp.j <- which(group == glev[[j]])
-    y <- P[gp.j,]
-    hull.pts.by.planes(y)
-  })
+  if(!is.null(ellipse.density)) {
+    gp.hull.pts.by.plane <- lapply(1:ng, function(j){
+      gp.j <- which(group == glev[[j]])
+      y <- P[gp.j,]
+      ellipsoid.pts.by.planes(y, confidence, ellipse.density)
+    }) 
+    } else {
+      gp.hull.pts.by.plane <- lapply(1:ng, function(j){
+        gp.j <- which(group == glev[[j]])
+        y <- P[gp.j,]
+        hull.pts.by.planes(y)
+      })
+  }
   g.a.p <- sapply(1:nrow(grid), function(j){
     g.point <- grid[j,]
     hd <- sapply(1:ng, function(j){
@@ -162,7 +193,14 @@ groups.at.points <- function(Y = Y, group = group, grid = grid) {
   t(g.a.p)
 }
 
-grid.preview <- function(Y, pts = 500, pt.scale = 0.05){
-  Z <- uniform.grid.sample(Y, pts, pt.scale)
-  pairs(Z, pch = 19, cex = 0.3, asp = 1)
+perm.schedule <- function(n, iter, seed=NULL){
+  if(is.null(seed)) seed = iter else
+    if(seed == "random") seed = sample(1:iter,1) else
+      if(!is.numeric(seed)) seed = iter
+      set.seed(seed)
+      ind <- c(list(1:n),(Map(function(x) sample.int(n,n), 1:iter)))
+      rm(.Random.seed, envir=globalenv())
+      attr(ind, "seed") <- seed
+      ind
 }
+
