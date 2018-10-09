@@ -21,7 +21,9 @@
 #' This can be changed to view alternative dimensions.  Illogical requests will defualt to
 #' c(1, 2) with a warning
 #' @param confidence The confidence level for ellipsoids, based on the covariance matrix of 
-#' data by groups.  Multivariate normality is assumed in estimation.
+#' data by groups.  Multivariate normality is assumed in estimation.  If NULL, then ellipsoids
+#' merely reflect the span of eigenvalues for the covariance matrix of the data.  Otherwise, the value should be between
+#' 0.01 and 1.
 #' @param ellipse.density A numeric value to indicate how many discrete points (in a circle)
 #' are used to approximate the continuous ellipse function.  More points mean a more precise curve, 
 #' but increase computation time.  The default, 120 points, is the same as 3 degrees (pi/60 radians) increments.
@@ -44,7 +46,7 @@
 #' data("Pupfish")
 #' group <- interaction(Pupfish$Sex, Pupfish$Pop)
 #' pc.ellipse.plot(Pupfish$coords, group = group)
-pc.ellipse.plot <- function(dat, std = FALSE, PC = c(1,2), confidence = 0.95,
+pc.ellipse.plot <- function(dat, std = FALSE, PC = c(1,2), confidence = NULL,
                             ellipse.density = 120,
                             group = NULL, group.cols = NULL, 
                          group.lwd = NULL, group.lty = NULL, ...){

@@ -4,7 +4,7 @@
 \alias{pc.ellipse.plot}
 \title{Principal Component Plot with Ellipsoids}
 \usage{
-pc.ellipse.plot(dat, std = FALSE, PC = c(1, 2), confidence = 0.95,
+pc.ellipse.plot(dat, std = FALSE, PC = c(1, 2), confidence = NULL,
   ellipse.density = 120, group = NULL, group.cols = NULL,
   group.lwd = NULL, group.lty = NULL, ...)
 }
@@ -19,7 +19,9 @@ This can be changed to view alternative dimensions.  Illogical requests will def
 c(1, 2) with a warning}
 
 \item{confidence}{The confidence level for ellipsoids, based on the covariance matrix of 
-data by groups.  Multivariate normality is assumed in estimation.}
+data by groups.  Multivariate normality is assumed in estimation.  If NULL, then ellipsoids
+merely reflect the span of eigenvalues for the covariance matrix of the data.  Otherwise, the value should be between
+0.01 and 1.}
 
 \item{ellipse.density}{A numeric value to indicate how many discrete points (in a circle)
 are used to approximate the continuous ellipse function.  More points mean a more precise curve, 

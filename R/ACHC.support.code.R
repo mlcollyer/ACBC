@@ -124,9 +124,12 @@ ellipsoid.pts.by.planes <- function(Y, confidence, ellipse.density){
   Y <- as.matrix(Y)
   p <- ncol(Y)
   n <- nrow(Y)
-  z <- qnorm((1 - confidence)/2, lower.tail = FALSE)
   angles <- seq(0, 2*pi, 2*pi/ellipse.density)
-  ell.points <- cbind(cos(angles), sin(angles)) * z
+  if(is.null(confidence)) tc <- 1 else
+    if(round(confidence, 2) < 0.01) tc <- sqrt(qchisq(0.99, p)) else
+      tc <- sqrt(qchisq(confidence, p))
+  
+  ell.points <- cbind(cos(angles), sin(angles)) * tc
   dim.list <- combn(p, 2)
   hbp <-   lapply(1:ncol(dim.list), function(j){
     dims <- dim.list[, j]
@@ -134,7 +137,9 @@ ellipsoid.pts.by.planes <- function(Y, confidence, ellipse.density){
     v <- var(y)
     R <- chol(v)
     ep <- ell.points %*% R + matrix(1, nrow(ell.points)) %*% colMeans(y)
-    ep[sort(chull(ep)), ]
+    chp <- sort(chull(ep))
+    chp <- c(chp, chp[1])
+    ep[chp, ]
   })
   hbp
 }

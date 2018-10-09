@@ -5,7 +5,7 @@
 \title{Analysis of Ellipsoid Coverage}
 \usage{
 aec(dat, std = FALSE, group, grid.points = 500, grid.space = 0.05,
-  confidence = 0.95, ellipse.density = 120, iter = 99, seed = NULL,
+  confidence = NULL, ellipse.density = 120, iter = 99, seed = NULL,
   print.progress = TRUE)
 }
 \arguments{
@@ -25,7 +25,9 @@ less than the maximum possible number of points (which could be huge).}
 be placed at increments that are 5 percent of the expanse of data, per axis.}
 
 \item{confidence}{The confidence level for ellipsoids, based on the covariance matrix of 
-data by groups.  Multivariate normality is assumed in estimation.}
+data by groups.  Multivariate normality is assumed in estimation.  If NULL, then ellipsoids
+merely reflect the span of eigenvalues for the covariance matrix of the data.  Otherwise, the value should be between
+0.01 and 1.}
 
 \item{ellipse.density}{A numeric value to indicate how many discrete points (in a circle)
 are used to approximate the continuous ellipse function.  More points mean a more precise curve, 

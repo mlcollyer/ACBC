@@ -72,9 +72,13 @@ achc <- function(dat, std = FALSE, group, grid.points = 500, grid.space = 0.05,
   dat <- as.data.frame(dat)
   if(std) data <- scale(dat)
   Y <- as.matrix(dat)
-  p <- ncol(Y)
   if(!is.numeric(Y))
     stop("\nNot all data are numeric.")
+  pca <- prcomp(Y)
+  d <- pca$sdev^2
+  k <- which(zapsmall(d) > 0)
+  Y <- pca$x[, k]
+  p <- length(k)
   group <- as.factor(group)
   
   # Make grid

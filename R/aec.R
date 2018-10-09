@@ -16,7 +16,9 @@
 #' @param grid.space The approximate spacing of uniform points along each axis.  For example, 0.05 means points will
 #' be placed at increments that are 5 percent of the expanse of data, per axis.
 #' @param confidence The confidence level for ellipsoids, based on the covariance matrix of 
-#' data by groups.  Multivariate normality is assumed in estimation.
+#' data by groups.  Multivariate normality is assumed in estimation.  If NULL, then ellipsoids
+#' merely reflect the span of eigenvalues for the covariance matrix of the data.  Otherwise, the value should be between
+#' 0.01 and 1.
 #' @param ellipse.density A numeric value to indicate how many discrete points (in a circle)
 #' are used to approximate the continuous ellipse function.  More points mean a more precise curve, 
 #' but increase computation time.  The default, 120 points, is the same as 3 degrees (pi/60 radians) increments.
@@ -55,7 +57,7 @@
 #' plot(pupCHC, lwd = 2, confidence = 0.99)
 
 aec <- function(dat, std = FALSE, group, grid.points = 500, grid.space = 0.05,
-                 confidence = 0.95, ellipse.density = 120,
+                 confidence = NULL, ellipse.density = 120,
                  iter = 99, seed = NULL, print.progress = TRUE){
 
   if(!inherits(dat, c("data.frame", "matrix")))
@@ -63,9 +65,13 @@ aec <- function(dat, std = FALSE, group, grid.points = 500, grid.space = 0.05,
   dat <- as.data.frame(dat)
   if(std) data <- scale(dat)
   Y <- as.matrix(dat)
-  p <- ncol(Y)
   if(!is.numeric(Y))
     stop("\nNot all data are numeric.")
+  pca <- prcomp(Y)
+  d <- pca$sdev^2
+  k <- which(zapsmall(d) > 0)
+  Y <- pca$x[, k]
+  p <- length(k)
   group <- as.factor(group)
   
   # Make grid
