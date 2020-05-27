@@ -1,7 +1,0 @@
-### Set directory to project directory
-library(tools)
-md5.dat <- as.data.frame(md5sum(dir(".", recursive=T )))
-Zdat <- data.frame(md5.dat, paste("*", rownames(md5.dat), sep=""))
-Zdat = Zdat[rownames(Zdat)!="MD5",]
-write.table(Zdat,"MD5", sep=" ", row.names = F, col.names = F, quote=F)
-
