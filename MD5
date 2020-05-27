@@ -1,6 +1,6 @@
 1d7389c5367dedccf1e03d48421572d3 *ACBC.Rproj
 600e34ac28ad9e32f2cbd060e8488ea6 *DESCRIPTION
-a87d9463fa1b1fc0bbfd0f31320fee26 *man/ACBC-package.Rd
+3ac0cebc0cdc0e9c3cb76f6071c575c2 *man/ACBC-package.Rd
 fede7b782dcb6a1d9cdf61e2f8f4fc82 *man/achc.Rd
 e60b41fea34fbc2dc4ffa28a8cf2707e *man/aec.Rd
 c9f8d6692018882c0532579df31b58f0 *man/grid.preview.Rd
@@ -13,7 +13,7 @@ f32080ab15470f28a1a89b159b231012 *man/plot.aec.Rd
 0d972c4fc90a94271b90849543e9dc9b *man/summary.achc.Rd
 b6164dc7cc30026a70fcd0b37eb3c642 *man/summary.aec.Rd
 3bf73a5375221e226e5afce1c7f33a4d *NAMESPACE
-d6534c1b88040a0a5725668b6ca2e9e9 *R/ACBC.support.code.R
+b76a1f074d60ad7205e0a3164d3847f4 *R/ACBC.support.code.R
 f2de0d503ab96591838a8da7a0e349fb *R/ACBC.utils.R
 e921b324ff0c8325e20bfa767a19779b *R/achc.R
 ca376a01ffa617f83c42e3cbebe9b38c *R/aec.R

@@ -1,7 +1,7 @@
 #' @name ACBC-package
 #' @docType package
 #' @aliases ACBC
-#' @title Analysis of convex hull coverage
+#' @title Analysis of convex body coverage
 #' @author Michael Collyer
 #' @return Key functions for this package:
 #' \item{\code{\link{achc}}}{Permutation procedure to generate many random convex hulls and measure

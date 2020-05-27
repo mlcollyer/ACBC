@@ -4,7 +4,7 @@
 \name{ACBC-package}
 \alias{ACBC-package}
 \alias{ACBC}
-\title{Analysis of convex hull coverage}
+\title{Analysis of convex body coverage}
 \value{
 Key functions for this package:
 \item{\code{\link{achc}}}{Permutation procedure to generate many random convex hulls and measure
