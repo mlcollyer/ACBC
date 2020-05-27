@@ -1,21 +1,23 @@
-#' @name ACHC-package
+#' @name ACBC-package
 #' @docType package
-#' @aliases ACHC
+#' @aliases ACBC
 #' @title Analysis of convex hull coverage
 #' @author Michael Collyer
 #' @return Key functions for this package:
-#' \item{\code{\link{achc}}}{Permutation procedure to generate many random hulls and measure
+#' \item{\code{\link{achc}}}{Permutation procedure to generate many random convex hulls and measure
 #' the amount of space covered by individual hulls.}
-#' \item{\code{\link{plot.achc}}}{Generates plots associated with ACHC.}
+#' \item{\code{\link{aec}}}{Permutation procedure to generate many random ellipsoids and measure
+#' the amount of space covered by individual ellipsoids.}
+#' \item{\code{\link{plot.achc}}}{Generates plots associated with achc.}
 
-#' The name, "ACHC", is an acronym for, "Analysis of Convex Hull Coverage."  Through
-#' the various functions in this package, one can determine if the distribution of convex hulls in a data
+#' The name, "ACBC", is an acronym for, "Analysis of Convex Body Coverage."  Through
+#' the various functions in this package, one can determine if the distribution of convex bodies in a data
 #' space, represented by groups to be compared, is consistent with or different than expectation from
-#' random assembly of observations.  ACHC fits a uniform grid of points to the total expanse of multidimensional space
-#' covered by observations.  Hulls for groups are described, and the frequency of 0, 1, ..., g hulls for 
+#' random assembly of observations.  ACBC fits a uniform grid of points to the total expanse of multidimensional space
+#' covered by observations.  Convex hulls or ellipsoids for groups are described, and the frequency of 0, 1, ..., g convex bodies for 
 #' g groups are measured at every point.  A relative frequency distribution is generated from these frequencies.  Next,
 #' the procedure is repeated many times with random assigment of observations to groups.  Confidence bands
-#' are generated for the 0, 1, 2, ..., g groups.  By comapring the observed distribution to the confidence limits
+#' are generated for the 0, 1, 2, ..., g groups.  By comparing the observed distribution to the confidence limits
 #' generated, one can ascertain if the data space is meaningfully partitioned in some way.
 #' 
 
@@ -126,8 +128,8 @@ ellipsoid.pts.by.planes <- function(Y, confidence, ellipse.density){
   n <- nrow(Y)
   angles <- seq(0, 2*pi, 2*pi/ellipse.density)
   if(is.null(confidence)) tc <- 1 else
-    if(round(confidence, 2) < 0.01) tc <- sqrt(qchisq(0.99, p)) else
-      tc <- sqrt(qchisq(confidence, p))
+    if(round(confidence, 2) < 0.01) tc <- sqrt(qchisq(0.99, p)/n) else
+      tc <- sqrt(qchisq(confidence, p)/n)
   
   ell.points <- cbind(cos(angles), sin(angles)) * tc
   dim.list <- combn(p, 2)

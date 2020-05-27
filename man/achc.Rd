@@ -4,8 +4,16 @@
 \alias{achc}
 \title{Analysis of Convex Hull Coverage}
 \usage{
-achc(dat, std = FALSE, group, grid.points = 500, grid.space = 0.05,
-  iter = 99, seed = NULL, print.progress = TRUE)
+achc(
+  dat,
+  std = FALSE,
+  group,
+  grid.points = 500,
+  grid.space = 0.05,
+  iter = 99,
+  seed = NULL,
+  print.progress = TRUE
+)
 }
 \arguments{
 \item{dat}{Either a data frame or matrix of data to be analyzed.  Because of computational

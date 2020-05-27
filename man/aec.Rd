@@ -4,9 +4,18 @@
 \alias{aec}
 \title{Analysis of Ellipsoid Coverage}
 \usage{
-aec(dat, std = FALSE, group, grid.points = 500, grid.space = 0.05,
-  confidence = NULL, ellipse.density = 120, iter = 99, seed = NULL,
-  print.progress = TRUE)
+aec(
+  dat,
+  std = FALSE,
+  group,
+  grid.points = 500,
+  grid.space = 0.05,
+  confidence = NULL,
+  ellipse.density = 120,
+  iter = 99,
+  seed = NULL,
+  print.progress = TRUE
+)
 }
 \arguments{
 \item{dat}{Either a data frame or matrix of data to be analyzed.  Because of computational

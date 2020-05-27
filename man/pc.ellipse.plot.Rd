@@ -4,9 +4,18 @@
 \alias{pc.ellipse.plot}
 \title{Principal Component Plot with Ellipsoids}
 \usage{
-pc.ellipse.plot(dat, std = FALSE, PC = c(1, 2), confidence = NULL,
-  ellipse.density = 120, group = NULL, group.cols = NULL,
-  group.lwd = NULL, group.lty = NULL, ...)
+pc.ellipse.plot(
+  dat,
+  std = FALSE,
+  PC = c(1, 2),
+  confidence = NULL,
+  ellipse.density = 120,
+  group = NULL,
+  group.cols = NULL,
+  group.lwd = NULL,
+  group.lty = NULL,
+  ...
+)
 }
 \arguments{
 \item{dat}{A matrix or data frame of data}

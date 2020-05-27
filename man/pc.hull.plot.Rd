@@ -4,8 +4,16 @@
 \alias{pc.hull.plot}
 \title{Principal Component Plot of Convex Hulls}
 \usage{
-pc.hull.plot(dat, std = FALSE, PC = c(1, 2), group = NULL,
-  group.cols = NULL, group.lwd = NULL, group.lty = NULL, ...)
+pc.hull.plot(
+  dat,
+  std = FALSE,
+  PC = c(1, 2),
+  group = NULL,
+  group.cols = NULL,
+  group.lwd = NULL,
+  group.lty = NULL,
+  ...
+)
 }
 \arguments{
 \item{dat}{A matrix or data frame of data}
