@@ -9,6 +9,7 @@
 #' \item{\code{\link{aec}}}{Permutation procedure to generate many random ellipsoids and measure
 #' the amount of space covered by individual ellipsoids.}
 #' \item{\code{\link{plot.achc}}}{Generates plots associated with achc.}
+#' \item{\code{\link{plot.aec}}}{Generates plots associated with aec}
 
 #' The name, "ACBC", is an acronym for, "Analysis of Convex Body Coverage."  Through
 #' the various functions in this package, one can determine if the distribution of convex bodies in a data
