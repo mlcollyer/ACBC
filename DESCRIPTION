@@ -2,7 +2,7 @@ Package: ACBC
 Title: Analysis of Convex Body Coverage
 Version: 0.0.0.9000
 Authors@R: person("Michael", "Collyer", email = "mlcollyer@gmail.com", role = c("aut", "cre"))
-Description: #' The name, "ACBC", is an acronym for, "Analysis of Convex Body Coverage."  
+Description: The name, "ACBC", is an acronym for, "Analysis of Convex Body Coverage."  
 Through the various functions in this package, one can determine if the distribution of convex bodies 
 in a data space, represented by groups to be compared, is consistent with or different than expectation 
 from random assembly of observations.  ACBC fits a uniform grid of points to the total expanse of 
